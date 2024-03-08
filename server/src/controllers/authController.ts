@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { generateAccessToken, generateRefreshToken } from '../utils/tokenGenerator';
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import User from '../models/userSchema';
+import { v4 as uuidv4 } from 'uuid';
 
 const signUpBodySchema = z.object({
     name: z.string().min(3).max(100),
@@ -27,7 +28,7 @@ const signupController = async (req: Request, res: Response) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10)
-        const user = await User.create({ name, email, password: hashedPassword })
+        const user = await User.create({ _id: uuidv4(), name, email, password: hashedPassword })
 
         return res.status(201).send("user created successfully");
 
@@ -40,7 +41,7 @@ const loginController = async (req: Request, res: Response) => {
     try {
         const { email, password } = loginBodySchema.parse(req.body);
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).select('+password');
 
         if (!user) {
             return res.status(404).send('User not registered');
@@ -50,8 +51,8 @@ const loginController = async (req: Request, res: Response) => {
         if (!matched) {
             return res.status(403).send('incorrect password');
         }
-        const accessToken = generateAccessToken({ _id: user._id })
-        const refreshToken = generateRefreshToken({ _id: user._id })
+        const accessToken = generateAccessToken({ _id: user.id })
+        const refreshToken = generateRefreshToken({ _id: user.id })
 
         res.cookie('jwt', refreshToken, {
             httpOnly: true,
@@ -64,27 +65,6 @@ const loginController = async (req: Request, res: Response) => {
         return res.status(500).send((e as Error).message);
     }
 }
-//This Api will check the refreshToken validity and generate 
-const refreshAccessTokenController = async (req: Request, res: Response) => {
-    const cookies = req.cookies;
-
-    if (!cookies.jwt) {
-        return res.status(401).send('refresh token in cookie is required');
-    }
-
-    const refreshToken = cookies.jwt;
-
-    try {
-        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_PRIVATE_KEY!);
-        const _id = (decoded as JwtPayload)._id;
-        const accessToken = generateAccessToken({ _id });
-        return res.send(success(201, { accessToken }))
-
-    } catch (e) {
-        console.error({ message: e.message });
-        return res.send(error(401, 'invalid refresh token'))
-    }
-}
 
 const logoutController = async (req: Request, res: Response) => {
     try {
@@ -92,32 +72,10 @@ const logoutController = async (req: Request, res: Response) => {
             httpOnly: true,
             secure: true
         })
-        return res.send(success(200, 'user logged out'))
+        return res.status(200).send('user logged out');
     } catch (e) {
-        return res.send(error(500, e.message))
+        return res.status(500).send((e as Error).message);
     }
 }
 
-const generateRefreshToken = (user) => {
-    try {
-        const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_PRIVATE_KEY, {
-            expiresIn: '1y'
-        })
-        return refreshToken;
-    } catch (e) {
-        console.error({ message: e.message })
-    }
-}
-
-const generateAccessToken = (user) => {
-    try {
-        const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_PRIVATE_KEY, {
-            expiresIn: '15m'
-        })
-        return accessToken;
-    } catch (e) {
-        console.error({ message: e.message });
-    }
-}
-
-export { loginController, signupController, refreshAccessTokenController, logoutController }
+export { loginController, signupController, logoutController }

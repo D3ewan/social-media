@@ -1,6 +1,10 @@
 import mongoose from 'mongoose';
 
 const followSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        required: true,
+    },
     followerId: {
         type: String,
         ref: 'user',

@@ -12,9 +12,10 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
         const { authorization } = headerSchema.parse(req.headers);
         if (!authorization.startsWith('Bearer')) return res.send('Send token in proper format!!');
         const token = authorization.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-        console.log(decoded);
-        req.body.id = (decoded as JwtPayload).id;
+        // console.log(token);
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_PRIVATE_KEY!);
+        // console.log(decoded);
+        req.body.id = (decoded as JwtPayload)._id;
         next();
     } catch (error) {
         return res.status(401).send("Not authorized, token failed");

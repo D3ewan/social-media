@@ -8,6 +8,8 @@ import cookieParser from "cookie-parser";
 // import cors from 'cors'
 import Cloudinary from 'cloudinary';
 import mainRouter from './routes/mainRouter';
+import { rateLimit } from 'express-rate-limit';
+
 const cloudinary = Cloudinary.v2;
 
 dotenv.config();
@@ -20,7 +22,17 @@ cloudinary.config({
 
 const app = express();
 
+// Define rate limiting options
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 300, // limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later'
+});
+
+
+
 //middlewares
+app.use(limiter); // Apply rate limiter to all requests
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 

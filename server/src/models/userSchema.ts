@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 import { string } from "zod";
+import { v4 as uuidv4 } from 'uuid';
 
 const userSchema = new mongoose.Schema({
-    id: {
-        type: string,
+    _id: {
+        type: String,
         required: true
     },
     email: {
@@ -29,7 +30,7 @@ const userSchema = new mongoose.Schema({
         url: String
     }
 }, {
-    timestamps: true, _id: false
+    timestamps: true
 })
 
 export default mongoose.model('user', userSchema);

@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import { string } from "zod";
 
 const postSchema = new mongoose.Schema({
-    id: {
-        type: string,
+    _id: {
+        type: String,
         required: true
     },
     owner: {
@@ -15,7 +15,7 @@ const postSchema = new mongoose.Schema({
         required: true
     }
 }, {
-    timestamps: true, _id: false
+    timestamps: true
 })
 
 export default mongoose.model('post', postSchema);

@@ -67,4 +67,5 @@ const deleteUserProfileController = async (req: Request, res: Response) => {
     }
 }
 
+
 export { getMyInfoController, updateUserProfileController, deleteUserProfileController };

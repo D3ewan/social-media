@@ -1,4 +1,4 @@
-import { getUserProfileController, updateUserProfileController, followOrUnfollowUserController, getPostsOfFollowingController, getMyPostController, getUserPostsController, deleteUserProfileController, getMyInfoController } from '../controllers/userController';
+import { updateUserProfileController, deleteUserProfileController, getMyInfoController } from '../controllers/userController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import express from 'express';
 const router = express.Router();
@@ -10,14 +10,5 @@ router.use(authMiddleware);
 router.get('/getMyInfo', getMyInfoController);
 router.patch('/', updateUserProfileController);
 router.delete('/', deleteUserProfileController);
-
-//API for Follower and Following
-router.post('/follow', followOrUnfollowUserController);
-
-
-router.get('/getFeedData', getPostsOfFollowingController);
-// router.get('/getMyPosts', getMyPostController);
-// router.get('/getUserPosts', getUserPostsController)
-router.post('/getUserProfile', getUserProfileController);
 
 export default router;

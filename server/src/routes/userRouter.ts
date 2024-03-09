@@ -9,7 +9,7 @@ const router = express.Router();
 router.use(authMiddleware);
 
 // Define routes for user profile functionality
-router.get('/getMyInfo', getMyInfoController); // Route for getting user information
+router.get('/', getMyInfoController); // Route for getting user information
 router.patch('/', updateUserProfileController); // Route for updating user profile
 router.delete('/', deleteUserProfileController); // Route for deleting user profile
 

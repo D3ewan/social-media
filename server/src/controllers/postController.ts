@@ -1,10 +1,13 @@
-import express, { Response, Request } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { Response, Request } from 'express';
 import { z } from 'zod';
 import Post from '../models/postSchema'
 import Follow from '../models/followSchema';
 
 // Handler function to read posts owned by a specific user
+
+//@description     Read your posts
+//@route           GET /api/post/myPosts
+//@access          Protected
 const readPostController = async (req: Request, res: Response) => {
     try {
         const { id } = req.body; // Extracting the user ID from the request body
@@ -23,7 +26,10 @@ const createPostBodySchema = z.object({
     content: z.string().max(1000).min(3) // Content of the post
 });
 
-// Handler function to create a new post
+//@description     Create your post
+//@route           POST /api/post/
+//@access          Protected
+
 const createPostController = async (req: Request, res: Response) => {
     try {
         const postData = createPostBodySchema.safeParse(req.body); // Parsing and validating the request body
@@ -34,7 +40,6 @@ const createPostController = async (req: Request, res: Response) => {
 
         // Creating a new post using the provided data
         const post = await Post.create({
-            _id: uuidv4(), // Generating a unique ID for the post
             owner: postData.data.id, // Assigning the post to the specified user
             content: postData.data.content // Setting the content of the post
         });
@@ -51,7 +56,10 @@ const paramSchema = z.object({
     postId: z.string() // ID of the post to be updated
 })
 
-// Handler function to update a post
+//@description     Update your post
+//@route           PUT /api/post/:postId
+//@access          Protected
+
 const updatePostController = async (req: Request, res: Response) => {
     try {
         const postId = paramSchema.safeParse(req.params); // Parsing and validating the post ID
@@ -84,7 +92,10 @@ const updatePostController = async (req: Request, res: Response) => {
     }
 }
 
-// Handler function to delete a post
+//@description     Delete your post
+//@route           DELETE /api/post/:postId
+//@access          Protected
+
 const deletePostController = async (req: Request, res: Response) => {
     try {
         const postId = paramSchema.safeParse(req.params); // Parsing and validating the post ID
@@ -102,7 +113,9 @@ const deletePostController = async (req: Request, res: Response) => {
     }
 }
 
-// Handler function to get the latest posts of users followed by the current user
+//@description     Get latest posts of the people you follow
+//@route           GET /api/chat/latestPosts
+//@access          Protected
 const latestPostsController = async (req: Request, res: Response) => {
     try {
         const latestPost = await Follow.aggregate([

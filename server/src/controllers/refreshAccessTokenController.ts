@@ -3,6 +3,11 @@ import { generateAccessToken } from "../utils/tokenGenerator";
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
 //This Api will check the refreshToken validity and generate 
+
+//@description     Refresh Access Token
+//@route           GET /api/refreshAccessToken/
+//@access          Protected
+
 export const refreshAccessTokenController = async (req: Request, res: Response) => {
     const cookies = req.cookies;
 

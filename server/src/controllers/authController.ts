@@ -3,7 +3,6 @@ import { generateAccessToken, generateRefreshToken } from '../utils/tokenGenerat
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import User from '../models/userSchema';
-import { v4 as uuidv4 } from 'uuid';
 
 // Validation schema for sign-up request body
 const signUpBodySchema = z.object({
@@ -20,6 +19,10 @@ const loginBodySchema = signUpBodySchema.pick({
 })
 
 // Controller function for user sign-up
+
+//@description     signup
+//@route           POST /api/auth/signup
+
 const signupController = async (req: Request, res: Response) => {
     try {
         const { email, password, name, picUrl } = signUpBodySchema.parse(req.body); // Parsing and validating request body
@@ -31,7 +34,7 @@ const signupController = async (req: Request, res: Response) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10); // Hashing the password
-        const user = await User.create({ _id: uuidv4(), name, email, password: hashedPassword }); // Creating a new user
+        const user = await User.create({ name, email, password: hashedPassword }); // Creating a new user
 
         return res.status(201).send("user created successfully"); // Sending success message
 
@@ -41,6 +44,10 @@ const signupController = async (req: Request, res: Response) => {
 }
 
 // Controller function for user login
+
+//@description     Login
+//@route           POST /api/auth/login
+
 const loginController = async (req: Request, res: Response) => {
     try {
         const { email, password } = loginBodySchema.parse(req.body); // Parsing and validating request body
@@ -71,6 +78,11 @@ const loginController = async (req: Request, res: Response) => {
 }
 
 // Controller function for user logout
+
+//@description     logout
+//@route           POST /api/auth/logout
+//@access          Protected
+
 const logoutController = async (req: Request, res: Response) => {
     try {
         res.clearCookie('jwt', {

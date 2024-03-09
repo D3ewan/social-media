@@ -11,6 +11,11 @@ const BodyValidator = z.object({
 })
 
 // Controller function to follow a user
+
+//@description     Follow a user
+//@route           POST /api/followRouter/follow
+//@access          Protected
+
 const followController = async (req: Request, res: Response) => {
     try {
         const usersData = BodyValidator.safeParse(req.body); // Parsing and validating request body
@@ -33,7 +38,6 @@ const followController = async (req: Request, res: Response) => {
         }
 
         await Follow.create({
-            _id: uuidv4(), // Generating a unique ID for the follow entry
             followerId: id,
             followingId: userId
         })
@@ -44,6 +48,10 @@ const followController = async (req: Request, res: Response) => {
 }
 
 // Controller function to unfollow a user
+
+//@description     Unfollow a user
+//@route           DELETE /api/followRouter/unfollow
+//@access          Protected
 const unfollowController = async (req: Request, res: Response) => {
     try {
         const usersData = BodyValidator.safeParse(req.body); // Parsing and validating request body
@@ -69,6 +77,11 @@ const unfollowController = async (req: Request, res: Response) => {
 }
 
 // Controller function to get followers of a user
+
+//@description     Get the followers
+//@route           GET /api/followRouter/follower
+//@access          Protected
+
 const getFollowers = async (req: Request, res: Response) => {
     try {
         const myid = req.body.id; // ID of the current user
@@ -84,6 +97,11 @@ const getFollowers = async (req: Request, res: Response) => {
 }
 
 // Controller function to get users followed by a user
+
+//@description     Get your followings
+//@route           GET /api/followRouter/following
+//@access          Protected
+
 const getFollowing = async (req: Request, res: Response) => {
     try {
         const myid = req.body.id; // ID of the current user

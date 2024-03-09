@@ -5,6 +5,10 @@ import Post from '../models/postSchema';
 import Follow from '../models/followSchema'
 
 //for reading your details
+
+//@description     Get your details
+//@route           GET /api/user/
+//@access          Protected
 const getMyInfoController = async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.body.id);
@@ -24,7 +28,12 @@ const updateUserBodySchema = z.object({
     password: z.string().min(8).max(100).optional()
 })
 
+
 //for updating your details
+//@description     Update  your profile
+//@route           PATCH /api/user/
+//@access          Protected
+
 const updateUserProfileController = async (req: Request, res: Response) => {
     try {
         //validating the content in this handler function
@@ -52,6 +61,10 @@ const updateUserProfileController = async (req: Request, res: Response) => {
 
 //for deletion of your profile
 //When you delete your profile, you need to remove the followers,followings and post from the database
+
+//@description     Delete your profile
+//@route           DELETE /api/user/
+//@access          Protected
 const deleteUserProfileController = async (req: Request, res: Response) => {
     try {
         const currentUserId = req.body.id;

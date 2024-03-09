@@ -5,15 +5,15 @@ import authRouter from "./routes/authRouter";
 import postsRouter from "./routes/postRouter";
 import userRouter from "./routes/userRouter";
 import cookieParser from "cookie-parser";
-// import cors from 'cors'
 import Cloudinary from 'cloudinary';
 import mainRouter from './routes/mainRouter';
 import { rateLimit } from 'express-rate-limit';
 
 const cloudinary = Cloudinary.v2;
 
-dotenv.config();
+dotenv.config(); // Load environment variables from .env file
 
+// Configure Cloudinary for image upload
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -25,33 +25,32 @@ const app = express();
 // Define rate limiting options
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 300, // limit each IP to 100 requests per windowMs
+    max: 300, // limit each IP to 300 requests per windowMs
     message: 'Too many requests from this IP, please try again later'
 });
 
-
-
 //middlewares
 app.use(limiter); // Apply rate limiter to all requests
-app.use(express.json({ limit: '10mb' }));
-app.use(cookieParser());
+app.use(express.json({ limit: '10mb' })); // Parse JSON requests with a payload limit of 10mb
+app.use(cookieParser()); // Parse cookies
 
+// Set CORS headers
 let origin = 'http://localhost:5173';
 if (process.env.NODE_ENV === 'production') {
-    origin = process.env.CORS_ORIGIN!
+    origin = process.env.CORS_ORIGIN!;
 }
-// app.use(cors({
-//     credentials: true,
-//     origin
-// }))
 
-app.use('/api', mainRouter);
+// Mount routers
+app.use('/api', mainRouter); // Mount mainRouter at /api endpoint
 app.get('/', (req, res) => {
-    res.status(200).send("ok from server");
+    res.status(200).send("ok from server"); // Handle root endpoint
 })
 
 const PORT = process.env.PORT || 3000;
-dbConnect()
+
+dbConnect(); // Connect to the database
+
+// Start the server
 app.listen(PORT, () => {
     console.log(`listening on port ${PORT}`);
-}); 
+});

@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
-import { string } from "zod";
+import { v4 as uuidv4 } from 'uuid';
 
 const postSchema = new mongoose.Schema({
     _id: {
         type: String,
-        required: true
+        default: uuidv4,
+        index: true
     },
     owner: {
         type: String,

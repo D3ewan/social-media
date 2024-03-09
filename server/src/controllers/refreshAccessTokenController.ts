@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import { Request, Response } from "express";
 import { generateAccessToken } from "../utils/tokenGenerator";
 import jwt, { JwtPayload } from 'jsonwebtoken';
 

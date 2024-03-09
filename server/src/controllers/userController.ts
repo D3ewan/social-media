@@ -4,6 +4,7 @@ import { z } from 'zod';
 import Post from '../models/postSchema';
 import Follow from '../models/followSchema'
 
+//for reading your details
 const getMyInfoController = async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.body.id);
@@ -14,6 +15,7 @@ const getMyInfoController = async (req: Request, res: Response) => {
 
 }
 
+//for validation of data coming into req.body from the client, in the handler function updateUserProfileController
 const updateUserBodySchema = z.object({
     id: z.string().optional(),
     name: z.string().min(3).max(100).optional(),
@@ -22,16 +24,20 @@ const updateUserBodySchema = z.object({
     password: z.string().min(8).max(100).optional()
 })
 
+//for updating your details
 const updateUserProfileController = async (req: Request, res: Response) => {
     try {
+        //validating the content in this handler function
         const bodyData = updateUserBodySchema.safeParse(req.body);
-        if (!bodyData.success) {
+
+        if (!bodyData.success) { //if not validated send the response regarding this to the client
             return res.status(400).send(bodyData.error);
         }
+
         const myId = bodyData.data.id;
         delete bodyData.data.id;
 
-        const user = await User.findByIdAndUpdate(myId, bodyData, { new: true });
+        const user = await User.findByIdAndUpdate(myId, bodyData, { new: true }); //first find the id of the user, then update it
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -44,18 +50,26 @@ const updateUserProfileController = async (req: Request, res: Response) => {
     }
 }
 
+//for deletion of your profile
+//When you delete your profile, you need to remove the followers,followings and post from the database
 const deleteUserProfileController = async (req: Request, res: Response) => {
     try {
         const currentUserId = req.body.id;
 
+        //deleting your posts if any
         await Post.deleteMany({
             owner: currentUserId
         })
 
-        await Follow.deleteMany({ followerId: currentUserId });
-        await Follow.deleteMany({ followingId: currentUserId });
+        //delete the data from Follow
+        await Follow.deleteMany({
+            $or: [{ followerId: currentUserId }, { followingId: currentUserId }],
+        });
+
+        //delete the current user
         await User.deleteOne({ _id: currentUserId });
 
+        //remove the refresh token from cookies
         res.clearCookie("jwt", {
             httpOnly: true,
             secure: true

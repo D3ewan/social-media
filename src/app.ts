@@ -31,6 +31,7 @@ const limiter = rateLimit({
     message: 'Too many requests from this IP, please try again later'
 });
 
+app.set('trust proxy', true);
 //middlewares
 app.use(limiter); // Apply rate limiter to all requests
 app.use(express.json({ limit: '10mb' })); // Parse JSON requests with a payload limit of 10mb

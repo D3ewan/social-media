@@ -8,14 +8,14 @@
    git clone https://github.com/D3ewan/social-media.git
    ```
 
-2. **Install Dependencies**: Navigate to the project directory and install the required dependencies using npm or yarn for both *frontend* and *backend*:
+2. **Install Dependencies**: Navigate to the project directory and install the required dependencies:
 
    ```
    npm install
    ```
 3. **Add .env file**: Take the reference of  .env.example
 
-4. **Start the Application**: Once the dependencies are installed, start the application in dev by running these commands in the terminal:
+4. **Start the Application**: Once the dependencies are installed, start the application in dev mode by running these commands in the terminal:
 
    ```
    npm run dev

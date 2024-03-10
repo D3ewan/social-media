@@ -13,12 +13,6 @@
    ```
    npm install
    ```
-
-   or
-
-   ```
-   yarn install
-   ```
 3. **Add .env file**: Take the reference of  .env.example
 
 4. **Start the Application**: Once the dependencies are installed, start the application in dev by running these commands in the terminal:

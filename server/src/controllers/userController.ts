@@ -4,8 +4,26 @@ import { z } from 'zod';
 import Post from '../models/postSchema';
 import Follow from '../models/followSchema'
 
-//for reading your details
+//@description     Get all the users detail
+//@route           GET /api/user/allUsers
+//@access          Protected
+export const allUsers = async (req: Request, res: Response) => {
+    try {
+        if (!req.query.search) return res.status(404).send('No user with provided name or email');
+        const keyword = {
+            $or: [
+                { name: { $regex: req.query.search, $options: "i" } },
+                { email: { $regex: req.query.search, $options: "i" } },
+            ],
+        }
+        const users = await User.find(keyword).find({ _id: { $ne: req.body.id } });
+        return res.json({ data: users }).status(200);
+    } catch (error) {
+        return res.send((error as Error).message);
+    }
+};
 
+//for reading your details
 //@description     Get your details
 //@route           GET /api/user/
 //@access          Protected
@@ -40,19 +58,19 @@ const updateUserProfileController = async (req: Request, res: Response) => {
         const bodyData = updateUserBodySchema.safeParse(req.body);
 
         if (!bodyData.success) { //if not validated send the response regarding this to the client
-            return res.status(400).send(bodyData.error);
+            return res.status(400).json(bodyData.error);
         }
 
         const myId = bodyData.data.id;
         delete bodyData.data.id;
 
-        const user = await User.findByIdAndUpdate(myId, bodyData, { new: true }); //first find the id of the user, then update it
+        const user = await User.findByIdAndUpdate(myId, bodyData.data, { new: true }); //first find the id of the user, then update it
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        return res.status(200).json({ message: 'User profile updated successfully', user });
+        return res.status(200).json({ message: 'User profile updated successfully', ...user });
 
     } catch (e) {
         return res.status(500).send((e as Error).message);
@@ -88,7 +106,7 @@ const deleteUserProfileController = async (req: Request, res: Response) => {
             secure: true
         })
 
-        return res.status(200).send('user deleted');
+        return res.status(200).json({ message: 'user deleted' });
     } catch (e) {
         return res.status(500).send((e as Error).message);
     }

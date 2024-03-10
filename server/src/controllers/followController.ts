@@ -21,29 +21,33 @@ const followController = async (req: Request, res: Response) => {
         const usersData = BodyValidator.safeParse(req.body); // Parsing and validating request body
 
         if (!usersData.success) {
-            return res.status(400).send(usersData.error); // Handling validation errors
+            return res.status(400).json({ error: usersData.error }); // Handling validation errors
         }
         const { id, userId } = usersData.data;
-
-        if (id == userId) return res.status(409).send('Users cannot follow themselves'); // Handling self-following case
+        // console.log(id, userId);
+        if (id == userId) return res.status(409).json({ "message": 'Users cannot follow themselves' }); // Handling self-following case
         const existingFollow = await Follow.findOne({ followerId: id, followingId: userId });
 
         if (existingFollow) {
             return res.status(400).json({ error: 'You are already following this user' }); // Handling case where user is already followed
         }
-        const userToFollow = await User.find({ _id: usersData.data.userId }).populate('-password');
+        const userToFollow = await User.findOne({ _id: usersData.data.userId });
+
+        // console.log(userToFollow);
 
         if (!userToFollow) {
-            return res.status(404).send('User to follow not found'); // Handling case where user to follow is not found
+            return res.status(404).json({ error: 'User to follow not found' }); // Handling case where user to follow is not found
         }
 
+        // console.log(id, userId);
         await Follow.create({
             followerId: id,
             followingId: userId
         })
-        return res.status(200).send(`Started Following ${userToFollow[1].name}`); // Returning success message after following
+
+        return res.status(200).json({ message: `Started Following ${userToFollow.name}` }); // Returning success message after following
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' }); // Handling errors
+        res.status(500).json({ error: (error as Error).message }); // Handling errors
     }
 }
 
@@ -69,10 +73,10 @@ const unfollowController = async (req: Request, res: Response) => {
 
         if (!follow) return res.status(404).send('You dont follow the provided user'); // Handling case where user is not followed
 
-        return res.status(200).send('unfollowed successfully'); // Returning success message after unfollowing
+        return res.status(200).json({ message: 'unfollowed successfully' }); // Returning success message after unfollowing
 
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' }); // Handling errors
+        res.status(500).json((error as Error).message); // Handling errors
     }
 }
 
@@ -85,14 +89,13 @@ const unfollowController = async (req: Request, res: Response) => {
 const getFollowers = async (req: Request, res: Response) => {
     try {
         const myid = req.body.id; // ID of the current user
-        const followers = await Follow.find({ followingId: myid }).populate('-password'); // Finding followers of the current user
+        const followers = await Follow.find({ followingId: myid }).select('-followingId').populate('followerId'); // Finding followers of the current user
+        if (followers.length === 0) return res.status(200).json({ message: 'You have 0 Followers' }); // Handling case where there are no followers
 
-        if (!followers) return res.status(404).send('You have 0 Followers'); // Handling case where there are no followers
-
-        return res.status(200).json(followers); // Returning followers
+        return res.status(200).json({ message: followers }); // Returning followers
 
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' }); // Handling errors
+        res.status(500).json((error as Error).message); // Handling errors
     }
 }
 
@@ -105,13 +108,13 @@ const getFollowers = async (req: Request, res: Response) => {
 const getFollowing = async (req: Request, res: Response) => {
     try {
         const myid = req.body.id; // ID of the current user
-        const following = await Follow.find({ followerId: myid }).populate('-password'); // Finding users followed by the current user
+        const following = await Follow.find({ followerId: myid }).select('-followerId').populate('followingId'); // Finding users followed by the current user
 
-        if (!following) return res.status(404).send('You dont follow anyone'); // Handling case where the user is not following anyone
+        if (following.length === 0) return res.status(200).json({ message: 'You dont follow anyone' }); // Handling case where the user is not following anyone
 
-        return res.status(200).json(following); // Returning users followed by the current user
+        return res.status(200).json({ message: following }); // Returning users followed by the current user
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' }); // Handling errors
+        res.status(500).json((error as Error).message); // Handling errors
     }
 }
 

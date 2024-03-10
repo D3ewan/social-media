@@ -1,4 +1,4 @@
-import { updateUserProfileController, deleteUserProfileController, getMyInfoController } from '../controllers/userController';
+import { updateUserProfileController, deleteUserProfileController, getMyInfoController, allUsers } from '../controllers/userController';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import express from 'express';
 
@@ -12,6 +12,6 @@ router.use(authMiddleware);
 router.get('/', getMyInfoController); // Route for getting user information
 router.patch('/', updateUserProfileController); // Route for updating user profile
 router.delete('/', deleteUserProfileController); // Route for deleting user profile
-
+router.get('/allUsers', allUsers); // Route to get details of all users present
 // Export the router to be used in other parts of the application
 export default router;

@@ -5,7 +5,6 @@ const userSchema = new mongoose.Schema({
     _id: {
         type: String,
         default: uuidv4,
-        index: true
     },
     email: {
         type: String,
@@ -27,8 +26,7 @@ const userSchema = new mongoose.Schema({
         type: String
     },
     avatar: {
-        publicId: String,
-        url: String
+        type: String,
     }
 }, {
     timestamps: true

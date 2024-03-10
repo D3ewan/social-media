@@ -14,7 +14,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
 
         // Check if the authorization header starts with 'Bearer'
         if (!authorization.startsWith('Bearer')) {
-            return res.send('Send token in proper format!!');
+            return res.json({ message: 'Send token in proper format!!' });
         }
 
         // Extract the token from the authorization header
@@ -30,6 +30,6 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
         next();
     } catch (error) {
         // Return 401 Unauthorized if token verification fails
-        return res.status(401).send("Not authorized, token failed");
+        return res.status(401).json({ message: "Not authorized, token failed" });
     }
 };

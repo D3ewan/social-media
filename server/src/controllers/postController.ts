@@ -33,9 +33,9 @@ const createPostBodySchema = z.object({
 const createPostController = async (req: Request, res: Response) => {
     try {
         const postData = createPostBodySchema.safeParse(req.body); // Parsing and validating the request body
-        console.log(postData);
+        // console.log(postData);
         if (!postData.success) {
-            return res.status(400).send(postData.error); // Handling validation errors
+            return res.status(400).json(postData.error); // Handling validation errors
         }
 
         // Creating a new post using the provided data
@@ -44,10 +44,10 @@ const createPostController = async (req: Request, res: Response) => {
             content: postData.data.content // Setting the content of the post
         });
 
-        console.log(post);
+        // console.log(post);
         return res.status(201).json(post); // Returning the created post
     } catch (error) {
-        return res.send((error as Error).message); // Handling errors
+        return res.json((error as Error).message); // Handling errors
     }
 }
 
@@ -64,11 +64,11 @@ const updatePostController = async (req: Request, res: Response) => {
     try {
         const postId = paramSchema.safeParse(req.params); // Parsing and validating the post ID
         if (!postId.success) {
-            return res.status(400).send(postId.error); // Handling validation errors
+            return res.status(400).json(postId.error); // Handling validation errors
         }
         const postData = createPostBodySchema.safeParse(req.body); // Parsing and validating the request body
         if (!postData.success) {
-            return res.status(400).send(postData.error); // Handling validation errors
+            return res.status(400).json(postData.error); // Handling validation errors
         }
         // Finding and updating the post with the specified ID
         const updatedPost = await Post.findByIdAndUpdate(
@@ -82,7 +82,7 @@ const updatePostController = async (req: Request, res: Response) => {
         )
 
         if (!updatedPost) {
-            return res.status(404).send('Post Not Found'); // Handling case where post is not found
+            return res.status(404).json({ message: 'Post Not Found' }); // Handling case where post is not found
         } else {
             return res.status(200).json(updatedPost); // Returning the updated post
         }
@@ -100,14 +100,14 @@ const deletePostController = async (req: Request, res: Response) => {
     try {
         const postId = paramSchema.safeParse(req.params); // Parsing and validating the post ID
         if (!postId.success) {
-            return res.status(400).send(postId.error); // Handling validation errors
+            return res.status(400).json(postId.error); // Handling validation errors
         }
 
         await Post.findByIdAndDelete(
             postId.data.postId // Deleting the post with the specified ID
         )
 
-        return res.status(200).send('post deleted successfully'); // Sending success message
+        return res.status(200).json({ message: 'post deleted successfully' }); // Sending success message
     } catch (error) {
         return res.send((error as Error).message); // Handling errors
     }
@@ -137,21 +137,38 @@ const latestPostsController = async (req: Request, res: Response) => {
                 $sort: { 'posts.createdAt': -1 } // Sorting posts by createdAt in descending order
             },
             {
-                $limit: 5 // Limiting to only one post, which is the latest
+                $limit: 100// Limiting to only 100 post, which is the latest
+            },
+            {
+                $lookup: {
+                    from: 'users', // Collection name for authors
+                    localField: 'posts.owner',
+                    foreignField: '_id',
+                    as: 'posts.owner',
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                                email: 1
+                            }
+                        },
+                    ]
+                }
             },
             {
                 $project: {
                     _id: 0, // Excluding the _id field
-                    latestPost: '$posts' // Renaming the field to latestPost
+                    post: '$posts', // Renaming the field to latestPost
                 }
             }
         ]);
 
         if (latestPost.length === 0) {
-            return res.status(404).json({ message: 'No latest post found for the user you follow.' }); // Handling case where no latest post is found
+            return res.status(200).json({ message: 'No latest post found for the user you follow.' }); // Handling case where no latest post is found
         }
 
-        return res.status(200).json({ latestPost: latestPost[0].latestPost }); // Returning the latest post
+        return res.status(200).json({ message: latestPost }); // Returning the latest post
 
     } catch (error) {
         res.status(500).json({ message: 'Internal server error' }) // Handling errors

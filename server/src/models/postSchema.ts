@@ -5,7 +5,6 @@ const postSchema = new mongoose.Schema({
     _id: {
         type: String,
         default: uuidv4,
-        index: true
     },
     owner: {
         type: String,

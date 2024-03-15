@@ -41,8 +41,7 @@ To run a Docker image, follow these steps:
    docker pull deewansingh7/social-media:v1
     ```
 
-3. **Run the Docker Image:** Once the Docker image is available locally, you can run it using the `docker run` command. Replace `<image_name>` with the name of the Docker image you want to run:
-
+3. **Run the Docker Image:** Once the Docker image is available locally, you can run it using the `docker run` command.
     ```bash
-    docker run -p 4000:<SERVER_PORT_NO> deewansingh7/social-media:v1
+    docker run -p 4000:3000 deewansingh7/social-media:v1
     ```

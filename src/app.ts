@@ -20,7 +20,6 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// console.log(process.env);
 
 const app = express();
 
@@ -31,7 +30,7 @@ const limiter = rateLimit({
     message: 'Too many requests from this IP, please try again later'
 });
 
-app.set('trust proxy', true);
+// app.set('trust proxy', true);
 //middlewares
 app.use(limiter); // Apply rate limiter to all requests
 app.use(express.json({ limit: '10mb' })); // Parse JSON requests with a payload limit of 10mb
@@ -39,9 +38,7 @@ app.use(cookieParser()); // Parse cookies
 
 // Set CORS headers
 let origin = 'http://localhost:5173';
-// if (process.env.NODE_ENV === 'production') {
-//     origin = process.env.CORS_ORIGIN!;
-// }
+
 
 // Mount routers
 app.use('/api', mainRouter); // Mount mainRouter at /api endpoint

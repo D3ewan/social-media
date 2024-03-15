@@ -30,3 +30,19 @@
    ```
    npm run test
    ```
+
+## Steps to run Docker Image
+
+To run a Docker image, follow these steps:
+
+1. **Pull the Docker Image (if necessary):** If the Docker image is not available locally, you need to pull it from a Docker registry. You can use the `docker pull` command to do this.
+   
+    ```bash
+   docker pull deewansingh7/social-media:v1
+    ```
+
+3. **Run the Docker Image:** Once the Docker image is available locally, you can run it using the `docker run` command. Replace `<image_name>` with the name of the Docker image you want to run:
+
+    ```bash
+    docker run -p 4000:<SERVER_PORT_NO> deewansingh7/social-media:v1
+    ```
